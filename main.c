@@ -17,8 +17,8 @@ int main(void)
 {
     char linha[100];
 
-    HEAP *heap_prioridade = heap_criar();
-    HEAP *heap_tempo = heap_criar();
+    HEAP *heap_prioridade = heap_criar(0);
+    HEAP *heap_tempo = heap_criar(1);
 
     while (fgets(linha, sizeof(linha), stdin) != NULL)
     {
@@ -46,7 +46,7 @@ int main(void)
         {
             comando_print(linha, heap_prioridade, heap_tempo);
         }
-        else if (!strcmp(comando, "quit"))
+        else
         {
             break;
         }

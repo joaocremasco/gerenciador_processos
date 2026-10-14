@@ -8,10 +8,10 @@ struct processo_
 {
     int priority;
     TEMPO *tempo;
-    char *nome;
+    char nome[MAX_DESCR];
 };
 
-PROCESSO *processo_criar(int priority, TEMPO *tempo, char *nome)
+PROCESSO *processo_criar(int priority, TEMPO *tempo, char nome[MAX_DESCR])
 {
     PROCESSO *processo = malloc(sizeof(*processo));
     if (processo == NULL)
@@ -19,7 +19,7 @@ PROCESSO *processo_criar(int priority, TEMPO *tempo, char *nome)
 
     processo->priority = priority;
     processo->tempo = tempo;
-    processo->nome = nome;
+    strcpy(processo->nome, nome); // temos que garantir que char nome tem no max MAX_DESCR - 1 caracteres
 
     return processo;
 }
@@ -30,7 +30,6 @@ void processo_apagar(PROCESSO **processo)
         return;
 
     tempo_apagar(&(*processo)->tempo);
-    free((*processo)->nome);
     free(*processo);
     *processo = NULL;
 }

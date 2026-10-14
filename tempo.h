@@ -10,5 +10,5 @@ int tempo_get_minutos(const TEMPO *tempo);
 int tempo_get_segundos(const TEMPO *tempo);
 void tempo_imprimir(const TEMPO *tempo);
 int tempo_comparar(const TEMPO *a, const TEMPO *b);
-#endif
 
+#endif
