@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "heap.h"
 #include "processo.h"
 #include "tempo.h"
@@ -11,6 +12,9 @@ struct heap_
     int capacidade;
     int tipo; // 0 e max heap (prioridade) e 1 min heap (tempo)
 };
+
+void heapify_up(HEAP *heap, int i);
+void heapify_down(HEAP *heap, int i);
 
 HEAP *heap_criar(int tipo){
     HEAP *heap = malloc(sizeof(*heap));
@@ -39,6 +43,31 @@ void heap_apagar(HEAP **heap){
 
 int heap_tamanho(const HEAP *heap) {
     return heap->tamanho;
+}
+
+bool heap_vazia(const HEAP *heap) {
+    return heap->tamanho == 0;
+}
+
+bool heap_inserir(HEAP *heap, PROCESSO *item) {
+    if(heap == NULL || item == NULL)
+        return false;
+    
+    if(heap->tamanho == heap->capacidade) {
+        int nova_capacidade = (heap->capacidade == 0) ? 1 : heap->capacidade * 2;
+        PROCESSO **novo_vetor = realloc(heap->vetor, nova_capacidade * sizeof(*novo_vetor));
+        if(novo_vetor == NULL)
+            return 0;
+        heap->vetor = novo_vetor;
+        heap->capacidade = nova_capacidade;
+    }
+
+    heap->vetor[heap->tamanho] = item;
+    heap->tamanho++;
+
+    heapify_up(heap, heap->tamanho - 1);
+
+    return true;
 }
     
 void heapify_up(HEAP *heap, int i)
