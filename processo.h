@@ -11,5 +11,7 @@ void processo_apagar(PROCESSO **processo);
 int processo_get_priority(const PROCESSO *processo);
 const char *processo_nome(const PROCESSO *processo);
 void processo_imprimir(const PROCESSO *processo);
+void processo_set_priority(PROCESSO *processo, int priority);
+void processo_set_tempo(PROCESSO *processo, TEMPO *tempo);
 
 #endif

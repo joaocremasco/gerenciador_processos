@@ -51,7 +51,7 @@ bool heap_inserir(HEAP *heap, PROCESSO *item) {
         return false;
     
     if(heap->tamanho == heap->capacidade) {
-        int nova_capacidade = (heap->capacidade == 0) ? 1 : heap->capacidade * 2;
+        int nova_capacidade = (heap->capacidade == 0) ? 16 : heap->capacidade * 2; // 16 processos iniciais
         PROCESSO **novo_vetor = realloc(heap->vetor, nova_capacidade * sizeof(*novo_vetor));
         if(novo_vetor == NULL)
             return 0;
@@ -98,6 +98,44 @@ void heap_imprimir(const HEAP *heap) {
     }
     
     heap_apagar(&heap2);
+}
+
+bool heap_modificar(HEAP *heap, int i, int targ_priority, TEMPO *targ_tempo, int novo_priority, TEMPO *novo_tempo) {
+    if(heap == NULL || targ_tempo == NULL || novo_tempo == NULL)
+        return false;
+
+    int priority = processo_get_priority(heap->vetor[i]);
+    int tempo = processo_get_tempo(heap->vetor[i]);
+
+    if(heap->tipo == 0 && priority < targ_priority) {
+        return false;
+    } 
+    if(heap->tipo == 1 && tempo_comparar(tempo, targ_tempo) > 0) {
+        return false;
+    }
+    
+    if(priority == targ_priority || tempo_comparar(tempo, targ_tempo) == 0) {
+        processo_set_priority(heap->vetor[i], novo_priority);
+        processo_set_tempo(heap->vetor[i], novo_tempo);
+
+        heapify_up(heap, i);
+        heapify_down(heap, i);
+
+        return true;
+    }
+
+    if(2 * i + 1 < heap->tamanho) {
+        if(heap_modificar(heap, 2 * i + 1, targ_priority, targ_tempo, novo_priority, novo_tempo)) {
+            return true;
+        }
+    }
+    if(2 * i + 2 < heap->tamanho) {
+        if(heap_modificar(heap, 2 * i + 2, targ_priority, targ_tempo, novo_priority, novo_tempo)) {
+            return true;
+        }
+    }
+
+    return false;
 }
     
 void heapify_up(HEAP *heap, int i)

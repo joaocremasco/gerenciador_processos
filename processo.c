@@ -49,6 +49,17 @@ const char *processo_get_nome(const PROCESSO *processo)
     return processo->nome;
 }
 
+void processo_set_priority(PROCESSO *processo, int priority) {
+    processo->priority = priority;
+}
+
+void processo_set_tempo(PROCESSO *processo, TEMPO *tempo) {
+    if(processo->tempo != NULL) {
+        tempo_apagar(&processo->tempo);
+    }
+    processo->tempo = tempo;
+}
+
 void processo_imprimir(const PROCESSO *processo) {
     printf("%d ", processo_get_priority(processo));
     tempo_imprimir(processo_get_tempo(processo));
