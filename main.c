@@ -21,7 +21,7 @@ int main(void)
 
     char comando[16];
 
-    while(scanf(" %15s", comando))
+    while(scanf(" %15s", comando) == 1)
     {
 
         if (!strcmp(comando, "add"))
@@ -31,7 +31,6 @@ int main(void)
         else if (!strcmp(comando, "exec"))
         {
             comando_exec(heap_prioridade, heap_tempo);
-            // exec nao faz nada ?? wtf
         }
         else if (!strcmp(comando, "next"))
         {
@@ -50,7 +49,8 @@ int main(void)
             break;
         }
     }
-
+    heap_apagar_processos(heap_prioridade);
+    heap_apagar_processos(heap_tempo);
     heap_apagar(&heap_prioridade);
     heap_apagar(&heap_tempo);
 
@@ -61,11 +61,10 @@ void comando_add(HEAP *heap_prioridade, HEAP *heap_tempo) {
     int priority, hora, minutos, segundos;
     char nome[MAX_DESCR];
 
-    scanf(" %d %d:%d:%d %255s", &priority, &hora, &minutos, &segundos, nome);
+    scanf(" %d %d:%d:%d %50s", &priority, &hora, &minutos, &segundos, nome);
 
-    PROCESSO *p = processo_criar(priority, tempo_criar(hora, minutos, segundos), nome);
-    heap_inserir(heap_prioridade, p);
-    heap_inserir(heap_tempo, p);
+    heap_inserir(heap_prioridade, processo_criar(priority, tempo_criar(hora, minutos, segundos), nome));
+    heap_inserir(heap_tempo, processo_criar(priority, tempo_criar(hora, minutos, segundos), nome));
 }
 
 void comando_exec(HEAP *heap_prioridade, HEAP *heap_tempo) {
@@ -86,8 +85,6 @@ void comando_next(HEAP *heap_prioridade, HEAP *heap_tempo) {
     else {
         heap_print_root(heap_tempo);
     }
-
-    printf("\n");
 }
 
 void comando_change(HEAP *heap_prioridade, HEAP *heap_tempo) {
@@ -98,8 +95,8 @@ void comando_change(HEAP *heap_prioridade, HEAP *heap_tempo) {
     if(c == 'p') {
         int ant_priority, novo_priority;
         scanf(" %d|%d", &ant_priority, &novo_priority);
-        heap_modificar(heap_prioridade, 0, ant_priority, NULL, novo_priority, NULL);
-        heap_modificar(heap_tempo, 0, ant_priority, NULL, novo_priority, NULL);
+        heap_modificar(heap_prioridade, ant_priority, NULL, novo_priority, NULL);
+        heap_modificar(heap_tempo, ant_priority, NULL, novo_priority, NULL);
     } 
     else {
         int hora, minutos, segundos;
@@ -107,11 +104,11 @@ void comando_change(HEAP *heap_prioridade, HEAP *heap_tempo) {
         scanf(" %d:%d:%d|%d:%d:%d", &hora, &minutos, &segundos, &novo_hora, &novo_minutos, &novo_segundos);
         TEMPO *targ_tempo = tempo_criar(hora, minutos, segundos);
         TEMPO *novo_tempo = tempo_criar(novo_hora, novo_minutos, novo_segundos);
-        if(!heap_modificar(heap_prioridade, 0, NULL, targ_tempo, NULL, novo_tempo)) {
+        if(!heap_modificar(heap_prioridade, -1, targ_tempo, -1, novo_tempo)) {
             tempo_apagar(&targ_tempo);
             tempo_apagar(&novo_tempo);
         }
-        if(!heap_modificar(heap_tempo, 0, NULL, targ_tempo, NULL, novo_tempo)) {
+        if(!heap_modificar(heap_tempo, -1, targ_tempo, -1, novo_tempo)) {
             tempo_apagar(&targ_tempo);
             tempo_apagar(&novo_tempo);
         }
