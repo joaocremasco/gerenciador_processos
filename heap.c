@@ -28,13 +28,10 @@ HEAP *heap_criar(int tipo){
     return heap;
 }
 
+// nao apaga os processos tem q liberar dps
 void heap_apagar(HEAP **heap){
     if (heap == NULL || *heap == NULL)
         return;
-    
-    for(int i = 0; i < (*heap)->tamanho; i++) {
-        processo_apagar(&(*heap)->vetor[i]);
-    }
 
     free((*heap)->vetor);
     free(*heap);
@@ -68,6 +65,39 @@ bool heap_inserir(HEAP *heap, PROCESSO *item) {
     heapify_up(heap, heap->tamanho - 1);
 
     return true;
+}
+
+void heap_imprimir(const HEAP *heap) {
+
+    HEAP *heap2 = malloc(sizeof(*heap));
+
+    if(heap2 == NULL)
+        return;
+
+    heap2->tamanho = heap->tamanho;
+    heap2->capacidade = heap->capacidade;
+    heap2->tipo = heap->tipo;
+
+    heap2->vetor = malloc(heap->tamanho * sizeof(*(heap->vetor)));
+    
+    if(heap2->vetor == NULL) {
+        free(heap2);
+        return;
+    }
+
+    memcpy(heap2->vetor, heap->vetor, heap->tamanho * sizeof(*(heap->vetor)));
+    
+    for(int i = heap2->tamanho - 1; i > 0; i--) {
+        printf("%02d ", processo_get_priority(heap2->vetor[0]));
+        tempo_imprimir(processo_get_tempo(heap2->vetor[0]));
+        printf(" %s\n", processo_get_nome(heap2->vetor[0]));
+
+        heap2->vetor[0] = heap2->vetor[i];
+        heap2->tamanho--;
+        heapify_down(heap2, 0);
+    }
+    
+    heap_apagar(&heap2);
 }
     
 void heapify_up(HEAP *heap, int i)
