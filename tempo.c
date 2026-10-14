@@ -2,25 +2,25 @@
 #include <stdlib.h>
 #include "tempo.h"
 
-struct tempo_
+struct horario
 {
-    int hora;
-    int minutos;
-    int segundos;
+    int hh;
+    int mm;
+    int ss;
 };
 
-TEMPO *tempo_criar(int hora, int minutos, int segundos){
-    TEMPO *tempo = malloc(sizeof(*tempo));
+horario *tempo_criar(int hora, int minutos, int segundos){
+    horario *tempo = malloc(sizeof(*tempo));
     if(tempo == NULL)
         return NULL;
 
-    tempo->hora = hora;
-    tempo->minutos = minutos;
-    tempo->segundos = segundos;
+    tempo->hh = hora;
+    tempo->mm = minutos;
+    tempo->ss = segundos;
     return tempo;
 }
 
-void tempo_apagar(TEMPO **tempo){
+void tempo_apagar(horario **tempo){
     if(tempo == NULL || *tempo == NULL)
         return;
 
@@ -28,26 +28,26 @@ void tempo_apagar(TEMPO **tempo){
     *tempo = NULL;
 }
 
-int tempo_get_hora(const TEMPO *tempo){
-    return tempo->hora;
+int tempo_get_hora(const horario *tempo){
+    return tempo->hh;
 }
 
-int tempo_get_minutos(const TEMPO *tempo){
-    return tempo->minutos;
+int tempo_get_minutos(const horario *tempo){
+    return tempo->mm;
 }
 
-int tempo_get_segundos(const TEMPO *tempo){
-    return tempo->segundos;
+int tempo_get_segundos(const horario *tempo){
+    return tempo->ss;
 }
 
-void tempo_imprimir(const TEMPO *tempo){
+void tempo_imprimir(const horario *tempo){
     printf("%02d:%02d:%02d", 
         tempo_get_hora(tempo), 
         tempo_get_minutos(tempo),
         tempo_get_segundos(tempo));
 }
 
-int tempo_comparar(const TEMPO *a, const TEMPO *b) {
+int tempo_comparar(const horario *a, const horario *b) {
     if(tempo_get_hora(a) != tempo_get_hora(b))
         return tempo_get_hora(a) - tempo_get_hora(b);
     if(tempo_get_minutos(a) != tempo_get_minutos(b))

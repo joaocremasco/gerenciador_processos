@@ -1,18 +1,18 @@
-#ifndef PROCESSO_H
-#define PROCESSO_H
+#ifndef celula_H
+#define celula_H
 #include "tempo.h"
 
 #define MAX_DESCR 51
 
-typedef struct processo_ PROCESSO;
+typedef struct celula celula;
 
-PROCESSO *processo_criar(int priority, TEMPO *tempo, char nome[MAX_DESCR]);
-void processo_apagar(PROCESSO **processo);
-int processo_get_priority(const PROCESSO *processo);
-const char *processo_get_nome(const PROCESSO *processo);
-TEMPO *processo_get_tempo(const PROCESSO *processo);
-void processo_imprimir(const PROCESSO *processo);
-void processo_set_priority(PROCESSO *processo, int priority);
-void processo_set_tempo(PROCESSO *processo, TEMPO *tempo);
+celula *processo_criar(int priority, horario *tempo, char nome[MAX_DESCR]);
+void processo_apagar(celula **processo);
+int processo_get_priority(const celula *processo);
+const char *processo_get_nome(const celula *processo);
+horario *processo_get_tempo(const celula *processo);
+void processo_imprimir(const celula *processo);
+void processo_set_priority(celula *processo, int priority);
+void processo_set_tempo(celula *processo, horario *tempo);
 
 #endif

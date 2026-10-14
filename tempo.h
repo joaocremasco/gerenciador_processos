@@ -1,14 +1,14 @@
-#ifndef TEMPO_H
-#define TEMPO_H
+#ifndef horario_H
+#define horario_H
 
-typedef struct tempo_ TEMPO;
+typedef struct horario horario;
 
-TEMPO *tempo_criar(int hora, int minutos, int segundos);
-void tempo_apagar(TEMPO **tempo);
-int tempo_get_hora(const TEMPO *tempo);
-int tempo_get_minutos(const TEMPO *tempo);
-int tempo_get_segundos(const TEMPO *tempo);
-void tempo_imprimir(const TEMPO *tempo);
-int tempo_comparar(const TEMPO *a, const TEMPO *b);
+horario *tempo_criar(int hora, int minutos, int segundos);
+void tempo_apagar(horario **tempo);
+int tempo_get_hora(const horario *tempo);
+int tempo_get_minutos(const horario *tempo);
+int tempo_get_segundos(const horario *tempo);
+void tempo_imprimir(const horario *tempo);
+int tempo_comparar(const horario *a, const horario *b);
 
 #endif
