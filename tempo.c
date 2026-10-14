@@ -46,7 +46,7 @@ void tempo_imprimir(const TEMPO *tempo){
         tempo_get_segundos(tempo));
 }
 
-int tempo_comparar(const TEMPO *a, const TEMPO *b){
+int tempo_comparar(const TEMPO *a, const TEMPO *b) {
     if(tempo_get_hora(a) != tempo_get_hora(b))
         return tempo_get_hora(a) - tempo_get_hora(b);
     if(tempo_get_minutos(a) != tempo_get_minutos(b))
