@@ -16,5 +16,6 @@ bool heap_modificar(HEAP *heap, int targ_priority, TEMPO *targ_tempo, int novo_p
 void heap_imprimir(const HEAP *heap); //implementação deve ser feita com mergesort // merge sort??
 void heap_print_root(const HEAP *heap);
 void heap_apagar_processos(HEAP *heap);
+PROCESSO *heap_remover_item(HEAP *heap, int targ_priority, TEMPO *targ_tempo);
 
 #endif

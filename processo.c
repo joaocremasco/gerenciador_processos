@@ -61,7 +61,7 @@ void processo_set_tempo(PROCESSO *processo, TEMPO *tempo) {
 }
 
 void processo_imprimir(const PROCESSO *processo) {
-    printf("%d ", processo_get_priority(processo));
+    printf("%02d ", processo_get_priority(processo));
     tempo_imprimir(processo_get_tempo(processo));
     printf(" %s\n", processo_get_nome(processo));
 }

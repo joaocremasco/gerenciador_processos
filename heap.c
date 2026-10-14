@@ -99,7 +99,7 @@ bool heap_inserir(HEAP *heap, PROCESSO *item) {
         int nova_capacidade = (heap->capacidade == 0) ? 16 : heap->capacidade * 2; // 16 processos iniciais
         PROCESSO **novo_vetor = realloc(heap->vetor, nova_capacidade * sizeof(*novo_vetor));
         if(novo_vetor == NULL)
-            return 0;
+            return false;
         heap->vetor = novo_vetor;
         heap->capacidade = nova_capacidade;
     }
@@ -122,6 +122,8 @@ void heap_print_root(const HEAP *heap) {
 }
 
 void heap_imprimir(const HEAP *heap) {
+    if(heap == NULL || heap->tamanho == 0)
+        return;
 
     HEAP *heap2 = malloc(sizeof(*heap));
 
@@ -151,8 +153,6 @@ void heap_imprimir(const HEAP *heap) {
         heapify_down(heap2, 0);
     }
 
-    printf("\n");
-    
     heap_apagar(&heap2);
 }
 
