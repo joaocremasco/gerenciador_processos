@@ -1,10 +1,6 @@
-#include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 #include "heap.h"
-#include "processo.h"
-#include "tempo.h"
 
 struct heap_
 {
@@ -14,9 +10,9 @@ struct heap_
     int tipo; // 0 e max heap (prioridade) e 1 min heap (tempo)
 };
 
-void heapify_up(HEAP *heap, int i);
-void heapify_down(HEAP *heap, int i);
-int heap_buscar(HEAP *heap, int targ_priority, horario *targ_tempo);
+static void heapify_up(HEAP *heap, int i);
+static void heapify_down(HEAP *heap, int i);
+static int heap_buscar(HEAP *heap, int targ_priority, const horario *targ_tempo);
 
 HEAP *heap_criar(int tipo){
     HEAP *heap = malloc(sizeof(*heap));
@@ -51,14 +47,6 @@ void heap_apagar_processos(HEAP *heap) {
     heap->tamanho = 0;
 }
 
-int heap_tamanho(const HEAP *heap) {
-    return heap->tamanho;
-}
-
-bool heap_vazia(const HEAP *heap) {
-    return heap->tamanho == 0;
-}
-
 celula *heap_remover_raiz(HEAP *heap) {
     if(heap == NULL || heap->tamanho == 0)
         return NULL;
@@ -72,7 +60,7 @@ celula *heap_remover_raiz(HEAP *heap) {
     return removido;
 }
 
-celula *heap_remover_item(HEAP *heap, int targ_priority, horario *targ_tempo) {
+celula *heap_remover_item(HEAP *heap, int targ_priority, const horario *targ_tempo) {
     if(heap == NULL)
         return NULL;
 
@@ -86,7 +74,8 @@ celula *heap_remover_item(HEAP *heap, int targ_priority, horario *targ_tempo) {
     heap->tamanho--;
 
     heapify_down(heap, i);
-    heapify_up(heap, i);
+    if(i < heap->tamanho)
+        heapify_up(heap, i);
 
     return removido;
 }
@@ -116,68 +105,81 @@ void heap_print_root(const HEAP *heap) {
     if(heap == NULL || heap->tamanho == 0)
         return;
 
-    printf("%02d ", processo_get_priority(heap->vetor[0]));
-    tempo_imprimir(processo_get_tempo(heap->vetor[0]));
-    printf(" %s\n", processo_get_nome(heap->vetor[0]));
+    processo_imprimir(heap->vetor[0]);
+}
+
+static int comparar_impressao(int tipo, celula *a, celula *b) {
+    if(tipo == 0)
+        return processo_get_priority(b) - processo_get_priority(a);
+    return tempo_comparar(processo_get_tempo(a), processo_get_tempo(b));
+}
+
+static int quick_sort_partition(celula **v, int low, int high, int tipo) {
+    celula *pivot = v[low + (high - low) / 2];
+    int i = low - 1;
+    int j = high + 1;
+
+    while(1) {
+        do i++; 
+        while(comparar_impressao(tipo, v[i], pivot) < 0);
+        do j--; 
+        while(comparar_impressao(tipo, v[j], pivot) > 0);
+
+        if(i >= j)
+            return j;
+
+        celula *tmp = v[i];
+        v[i] = v[j];
+        v[j] = tmp;
+    }
+}
+
+static void quick_sort(celula **v, int low, int high, int tipo) {
+    if(low >= high)
+        return;
+
+    int p = quick_sort_partition(v, low, high, tipo);
+    quick_sort(v, low, p, tipo);
+    quick_sort(v, p + 1, high, tipo);
 }
 
 void heap_imprimir(const HEAP *heap) {
     if(heap == NULL || heap->tamanho == 0)
         return;
 
-    HEAP *heap2 = malloc(sizeof(*heap));
-
-    if(heap2 == NULL)
+    celula **copia = malloc(heap->tamanho * sizeof(*copia));
+    if(copia == NULL)
         return;
 
-    heap2->tamanho = heap->tamanho;
-    heap2->capacidade = heap->capacidade;
-    heap2->tipo = heap->tipo;
+    memcpy(copia, heap->vetor, heap->tamanho * sizeof(*copia));
+    quick_sort(copia, 0, heap->tamanho - 1, heap->tipo);
 
-    heap2->vetor = malloc(heap->tamanho * sizeof(*(heap->vetor)));
-    
-    if(heap2->vetor == NULL) {
-        free(heap2);
-        return;
-    }
+    for(int i = 0; i < heap->tamanho; i++)
+        processo_imprimir(copia[i]);
 
-    memcpy(heap2->vetor, heap->vetor, heap->tamanho * sizeof(*(heap->vetor)));
-    
-    for(int i = heap2->tamanho - 1; i >= 0; i--) {
-        printf("%02d ", processo_get_priority(heap2->vetor[0]));
-        tempo_imprimir(processo_get_tempo(heap2->vetor[0]));
-        printf(" %s\n", processo_get_nome(heap2->vetor[0]));
-
-        heap2->vetor[0] = heap2->vetor[i];
-        heap2->tamanho--;
-        heapify_down(heap2, 0);
-    }
-
-    heap_apagar(&heap2);
+    free(copia);
 }
 
-int heap_buscar(HEAP *heap, int targ_priority, horario *targ_tempo) {
+static int heap_buscar(HEAP *heap, int targ_priority, const horario *targ_tempo) {
     if(heap == NULL)
         return -1;
     
     for(int i = 0; i < heap->tamanho; i++) {
 
         int priority_atual = processo_get_priority(heap->vetor[i]);
-        horario* tempo_atual = processo_get_tempo(heap->vetor[i]);
-        
-        if((targ_priority != -1 && priority_atual == targ_priority)) {
-            return i;
-        }
+        horario tempo_atual = processo_get_tempo(heap->vetor[i]);
 
-        if((targ_tempo != NULL && tempo_comparar(tempo_atual, targ_tempo) == 0)) {
+        if(targ_priority != -1 && priority_atual == targ_priority)
             return i;
-        }
+
+        if(targ_tempo != NULL && tempo_comparar(tempo_atual, *targ_tempo) == 0)
+            return i;
     }
 
     return -1;
 }
 
-bool heap_modificar(HEAP *heap, int targ_priority, horario *targ_tempo, int novo_priority, horario *novo_tempo) {
+bool heap_modificar(HEAP *heap, int targ_priority, const horario *targ_tempo, int novo_priority, const horario *novo_tempo) {
     if(heap == NULL)
         return false;
 
@@ -185,42 +187,35 @@ bool heap_modificar(HEAP *heap, int targ_priority, horario *targ_tempo, int novo
 
     if(i == -1)
         return false;
-    
-    int priority_atual = processo_get_priority(heap->vetor[i]);
-    horario* tempo_atual = processo_get_tempo(heap->vetor[i]);
-    
-    if((targ_priority != -1 && priority_atual == targ_priority)) {
-        if(novo_priority != -1) {
-            processo_set_priority(heap->vetor[i], novo_priority);
-            
-            if(novo_priority > priority_atual)
-                heapify_up(heap, i);
-            else
-                heapify_down(heap, i);
-            
-            return true;
-        }
+
+    if(targ_priority != -1 && novo_priority != -1) {
+        int priority_atual = processo_get_priority(heap->vetor[i]);
+        processo_set_priority(heap->vetor[i], novo_priority);
+
+        if(novo_priority > priority_atual)
+            heapify_up(heap, i);
+        else
+            heapify_down(heap, i);
+
+        return true;
     }
 
-    if((targ_tempo != NULL && tempo_comparar(tempo_atual, targ_tempo) == 0)) {
-        if(novo_tempo != NULL)  {
-            if(tempo_comparar(novo_tempo, tempo_atual) < 0) {
-                processo_set_tempo(heap->vetor[i], novo_tempo);
-                heapify_up(heap, i);
-            }
-            else {
-                processo_set_tempo(heap->vetor[i], novo_tempo);
-                heapify_down(heap, i);
-            }
+    if(targ_tempo != NULL && novo_tempo != NULL) {
+        horario tempo_atual = processo_get_tempo(heap->vetor[i]);
+        processo_set_tempo(heap->vetor[i], *novo_tempo);
 
-            return true;
-        }
+        if(tempo_comparar(*novo_tempo, tempo_atual) < 0)
+            heapify_up(heap, i);
+        else
+            heapify_down(heap, i);
+
+        return true;
     }
 
     return false;
 }
-    
-void heapify_up(HEAP *heap, int i)
+
+static void heapify_up(HEAP *heap, int i)
 {
     if(heap->tipo == 0) {
         while(i > 0)
@@ -254,7 +249,7 @@ void heapify_up(HEAP *heap, int i)
     }
 }
 
-void heapify_down(HEAP *heap, int i)
+static void heapify_down(HEAP *heap, int i)
 {
     if(heap->tipo == 0) {
         while (2 * i + 1 < heap->tamanho)

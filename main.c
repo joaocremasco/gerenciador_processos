@@ -1,11 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 
 #include "heap.h"
-#include "tempo.h"
-#include "processo.h"
 
 void comando_add(HEAP *heap_prioridade, HEAP *heap_tempo);
 void comando_exec(HEAP *heap_prioridade, HEAP *heap_tempo);
@@ -70,11 +67,13 @@ void comando_add(HEAP *heap_prioridade, HEAP *heap_tempo) {
     int priority, hora, minutos, segundos;
     char nome[MAX_DESCR];
 
-    scanf(" %d %d:%d:%d %50[^\n]", &priority, &hora, &minutos, &segundos, nome);
+    scanf(" %d %d:%d:%d %50[^\r\n]", &priority, &hora, &minutos, &segundos, nome);
+
+    horario t = {hora, minutos, segundos};
 
     // assumimos aqui que inserir nao vai falhar
-    heap_inserir(heap_prioridade, processo_criar(priority, tempo_criar(hora, minutos, segundos), nome));
-    heap_inserir(heap_tempo, processo_criar(priority, tempo_criar(hora, minutos, segundos), nome));
+    heap_inserir(heap_prioridade, processo_criar(priority, t, nome));
+    heap_inserir(heap_tempo, processo_criar(priority, t, nome));
 }
 
 void comando_exec(HEAP *heap_prioridade, HEAP *heap_tempo) {
@@ -93,7 +92,8 @@ void comando_exec(HEAP *heap_prioridade, HEAP *heap_tempo) {
         p = heap_remover_raiz(heap_tempo);
         if(p == NULL) 
             return;
-        outro = heap_remover_item(heap_prioridade, -1, processo_get_tempo(p));
+        horario t = processo_get_tempo(p);
+        outro = heap_remover_item(heap_prioridade, -1, &t);
     }
     processo_apagar(&p);
     processo_apagar(&outro);
@@ -133,19 +133,11 @@ void comando_change(HEAP *heap_prioridade, HEAP *heap_tempo) {
 
         scanf(" %d:%d:%d|%d:%d:%d", &hora, &minutos, &segundos, &novo_hora, &novo_minutos, &novo_segundos);
 
-        horario *targ_tempo = tempo_criar(hora, minutos, segundos);
-        horario *novo_tempo1 = tempo_criar(novo_hora, novo_minutos, novo_segundos);
-        horario *novo_tempo2 = tempo_criar(novo_hora, novo_minutos, novo_segundos);
+        horario targ_tempo = {hora, minutos, segundos};
+        horario novo_tempo = {novo_hora, novo_minutos, novo_segundos};
 
-        if(!heap_modificar(heap_prioridade, -1, targ_tempo, -1, novo_tempo1)) {
-            tempo_apagar(&novo_tempo1);
-        }
-
-        if(!heap_modificar(heap_tempo, -1, targ_tempo, -1, novo_tempo2)) {
-            tempo_apagar(&novo_tempo2);
-        }
-
-        tempo_apagar(&targ_tempo);
+        heap_modificar(heap_prioridade, -1, &targ_tempo, -1, &novo_tempo);
+        heap_modificar(heap_tempo, -1, &targ_tempo, -1, &novo_tempo);
     }
 }
 
