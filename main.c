@@ -72,10 +72,24 @@ void comando_add(HEAP *heap_prioridade, HEAP *heap_tempo) {
 
     horario t = {hora, minutos, segundos};
 
-    // assumimos aqui que inserir nao vai falhar
-    heap_inserir(heap_prioridade, processo_criar(priority, t, nome));
-    heap_inserir(heap_tempo, processo_criar(priority, t, nome));
+    celula *p1 = processo_criar(priority, t, nome);
+    celula *p2 = processo_criar(priority, t, nome);
+
+    if (p1 == NULL || p2 == NULL || !heap_inserir(heap_prioridade, p1))
+    {
+        processo_apagar(&p1);
+        processo_apagar(&p2);
+        return;
+    }
+
+    if (!heap_inserir(heap_tempo, p2))
+    {
+        heap_remover_por_prioridade(heap_prioridade, priority);
+        processo_apagar(&p1);
+        processo_apagar(&p2);
+    }
 }
+
 
 void comando_exec(HEAP *heap_prioridade, HEAP *heap_tempo) {
     char c;
