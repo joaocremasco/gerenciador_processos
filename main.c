@@ -67,7 +67,8 @@ void comando_add(HEAP *heap_prioridade, HEAP *heap_tempo) {
     int priority, hora, minutos, segundos;
     char nome[MAX_DESCR];
 
-    scanf(" %d %d:%d:%d %50[^\r\n]", &priority, &hora, &minutos, &segundos, nome);
+    if(scanf(" %d %d:%d:%d %50[^\r\n]", &priority, &hora, &minutos, &segundos, nome) != 5)
+        return;
 
     horario t = {hora, minutos, segundos};
 
@@ -78,7 +79,8 @@ void comando_add(HEAP *heap_prioridade, HEAP *heap_tempo) {
 
 void comando_exec(HEAP *heap_prioridade, HEAP *heap_tempo) {
     char c;
-    scanf(" -%c", &c);
+    if(scanf(" -%c", &c) != 1)
+        return;
 
     celula *p, *outro;
 
@@ -86,14 +88,13 @@ void comando_exec(HEAP *heap_prioridade, HEAP *heap_tempo) {
         p = heap_remover_raiz(heap_prioridade);
         if(p == NULL)
             return;
-        outro = heap_remover_item(heap_tempo, processo_get_priority(p), NULL);
+        outro = heap_remover_por_prioridade(heap_tempo, processo_get_priority(p));
     } 
     else {
         p = heap_remover_raiz(heap_tempo);
         if(p == NULL) 
             return;
-        horario t = processo_get_tempo(p);
-        outro = heap_remover_item(heap_prioridade, -1, &t);
+        outro = heap_remover_por_tempo(heap_prioridade, processo_get_tempo(p));
     }
     processo_apagar(&p);
     processo_apagar(&outro);
@@ -102,7 +103,8 @@ void comando_exec(HEAP *heap_prioridade, HEAP *heap_tempo) {
 void comando_next(HEAP *heap_prioridade, HEAP *heap_tempo) {
     char c;
     
-    scanf(" -%c", &c);
+    if(scanf(" -%c", &c) != 1)
+        return;
 
     if(c == 'p') {
         heap_print_root(heap_prioridade);
@@ -117,34 +119,38 @@ void comando_next(HEAP *heap_prioridade, HEAP *heap_tempo) {
 void comando_change(HEAP *heap_prioridade, HEAP *heap_tempo) {
     char c;
     
-    scanf(" -%c", &c);
+    if(scanf(" -%c", &c) != 1)
+        return;
 
     if(c == 'p') {
         int ant_priority, novo_priority;
 
-        scanf(" %d|%d", &ant_priority, &novo_priority);
+        if(scanf(" %d|%d", &ant_priority, &novo_priority) != 2)
+            return;
 
-        heap_modificar(heap_prioridade, ant_priority, NULL, novo_priority, NULL);
-        heap_modificar(heap_tempo, ant_priority, NULL, novo_priority, NULL);
+        heap_alterar_prioridade(heap_prioridade, ant_priority, novo_priority);
+        heap_alterar_prioridade(heap_tempo, ant_priority, novo_priority);
     } 
     else {
         int hora, minutos, segundos;
         int novo_hora, novo_minutos, novo_segundos;
 
-        scanf(" %d:%d:%d|%d:%d:%d", &hora, &minutos, &segundos, &novo_hora, &novo_minutos, &novo_segundos);
+        if(scanf(" %d:%d:%d|%d:%d:%d", &hora, &minutos, &segundos, &novo_hora, &novo_minutos, &novo_segundos) != 6)
+            return;
 
         horario targ_tempo = {hora, minutos, segundos};
         horario novo_tempo = {novo_hora, novo_minutos, novo_segundos};
 
-        heap_modificar(heap_prioridade, -1, &targ_tempo, -1, &novo_tempo);
-        heap_modificar(heap_tempo, -1, &targ_tempo, -1, &novo_tempo);
+        heap_alterar_tempo(heap_prioridade, targ_tempo, novo_tempo);
+        heap_alterar_tempo(heap_tempo, targ_tempo, novo_tempo);
     }
 }
 
 void comando_print(HEAP *heap_prioridade, HEAP *heap_tempo) {
     char c;
     
-    scanf(" -%c", &c);
+    if(scanf(" -%c", &c) != 1)
+        return;
 
     if(c == 'p') {
         heap_imprimir(heap_prioridade);
