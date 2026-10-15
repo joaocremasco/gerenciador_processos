@@ -19,7 +19,10 @@ processo.o: processo.c processo.h tempo.h
 tempo.o: tempo.c tempo.h
 	$(CC) $(CFLAGS) -c tempo.c
 
+run: gerente
+	@./gerente
+
 clean:
 	rm -f $(OBJS) gerente
 
-.PHONY: all clean
+.PHONY: all run clean
